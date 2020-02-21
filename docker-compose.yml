@@ -1,14 +1,52 @@
 version: "3"
 services:
-        hellodocker:
-                build:
-                   context: .
-                   dockerfile: Dockerfile
-                ports:
-                        - "6060-8080:8080"
-                restart: unless-stopped
+  app:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: go-docker
+      ports:
+        - "8080:8080"
+      restart: always
+      networks:
+        - postgres
+  db:
+    image: postgres:latest
+    container_name: database
+    volumes:
+       - ${DATA}:/var/lib/postgresql/data
+       #- ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    networks:
+      - postgres
+    restart: always
 
+  #adminer:
+    #image: dpage/pgadmin4
+    #container_name: adminer
+    #environment:	   //os.ExpandEnv("user=${POSTGRES_USER}:password=${POSTGRES_PASSWORD}@db/dbname=${DB_NAME}?charset=utf8&parseTime=True&loc=Local"))
 
+      #PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      #PGADMIN_DEFAULT_PASSWORD: admin
+    #restart: always
+    #ports:
+      #- "8080:8080"
+    #networks:
+      #- postgres
+    #depends_on:
+      #- db
 
+volumes:
+  dbdados:
+
+networks:
+  postgres:
+    driver: bridge
 
 
